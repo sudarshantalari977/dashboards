@@ -83,6 +83,7 @@ st.markdown(
         padding: 4px !important; 
         border: 1px solid black !important;
         font-weight: 600 !important;
+        color: black !important; /* Forces all table data text to be black */
     }
 
     /* --- RADIO BUTTONS & INPUT CONTROLS --- */
@@ -230,7 +231,7 @@ with mid_col2:
 
             st.markdown(
                 f"""
-                <div style="font-size: 13px; line-height: 1.5; padding-top: 5px;">
+                <div style="font-size: 13px; line-height: 1.5; padding-top: 5px; color: black;">
                 <b>📈 Highest:</b> {highest_loc['location']} ({highest_loc['occupancy_percentage']:.2f}%)<br><br>
                 <b>📉 Lowest:</b> {lowest_loc['location']} ({lowest_loc['occupancy_percentage']:.2f}%)<br><br>
                 <b>👥 High Avg:</b> {high_avg_loc['location']} ({high_avg_loc['daily_average_occupancy']})<br><br>
@@ -255,8 +256,8 @@ def apply_bold_chart_styling(fig, xaxis_title):
                    tickfont=dict(size=11, color="black", weight="bold")),
         yaxis=dict(showline=True, linewidth=2, linecolor="black", mirror=True,
                    tickfont=dict(size=11, color="black", weight="bold")),
-        plot_bgcolor="#BBDEFB",  # Soft blue replacing peach
-        paper_bgcolor="#BBDEFB",  # Soft blue replacing peach
+        plot_bgcolor="#BBDEFB",  # Soft blue
+        paper_bgcolor="#BBDEFB",  # Soft blue
     )
     return fig
 
