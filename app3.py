@@ -16,7 +16,7 @@ st.markdown(
     <style>
     /* --- GLOBAL BACKGROUND COLOR --- */
     .stApp {
-        background-color: #E3F2FD !important; /* Pale blue background */
+        background-color: #FFFFFF !important; /* Pale blue background */
     }
 
     /* Make the top padding area transparent so it blends */
@@ -35,17 +35,17 @@ st.markdown(
         gap: 0.4rem !important;
     }
     .main-title {
-        font-size: 24px;
+        font-size: 32px;
         font-weight: 800;
         color: #1f3b73;
-        text-align: center;
-        margin-bottom: -5px;
+        text-align: left;
+        margin-bottom: 5px;
     }
 
     /* --- BULLETPROOF BLACK BORDER FOR CONTAINERS --- */
     /* Target the main wrapper directly to overwrite Streamlit's default gray border */
     div[data-testid="stVerticalBlockBorderWrapper"] {
-        border: 2px solid black !important;
+        border: 1px solid black !important;
         border-radius: 6px !important;
         background-color: #BBDEFB !important; /* Soft blue */
         box-shadow: none !important; /* Force remove any default gray shadows */
@@ -61,7 +61,7 @@ st.markdown(
     /* --- METRIC CARDS --- */
     [data-testid="stMetric"] {
         background-color: #BBDEFB !important; /* Soft blue */
-        border: 2px solid black !important;
+        border: 1px solid black !important;
         padding: 5px 10px;
         border-radius: 6px;
         box-shadow: none !important;
@@ -71,7 +71,7 @@ st.markdown(
 
     /* --- TABLE BORDERS & BACKGROUND --- */
     table {
-        border: 2px solid black !important;
+        border: 1px solid black !important;
         background-color: #BBDEFB !important; /* Soft blue */
         margin-bottom: 0px !important;
     }
@@ -80,13 +80,13 @@ st.markdown(
         color: white !important;
         text-align: center !important; 
         font-weight: bold !important;
-        font-size: 12px !important; 
+        font-size: 10px !important; 
         padding: 4px !important;
         border: 1px solid black !important;
     }
     tbody tr td { 
         text-align: center !important; 
-        font-size: 12px !important; 
+        font-size: 10px !important; 
         padding: 4px !important; 
         border: 1px solid black !important;
         font-weight: 600 !important;
@@ -132,14 +132,16 @@ st.markdown(
     """,
     unsafe_allow_html=True,
 )
+left_half, right_half = st.columns(2)
 
-# --- 2. HEADER & FILTERS ---
-st.markdown('<p class="main-title">Cumulative Daily Avg. Occupancy Dashboard</p>', unsafe_allow_html=True)
+with left_half:
+        # --- 2. HEADER & FILTERS ---
+    st.markdown('<p class="main-title">Cumulative Daily Avg. Occupancy Dashboard</p>', unsafe_allow_html=True)
 
-filter_col1, filter_col2 = st.columns([1, 3])
-with filter_col1:
-    selected_date = st.date_input("📅 Reporting Date", datetime.date.today())
-
+with right_half:
+    filter_col1, filter_col2 = st.columns([1, 3])
+    with filter_col1:
+        selected_date = st.date_input("📅 Reporting Date", datetime.date.today())
 
 # --- 3. LIVE DATA CONNECTION (60-Second Refresh) ---
 @st.cache_data(ttl=60)
@@ -172,6 +174,8 @@ def get_data(target_date):
 raw_df = get_data(selected_date)
 
 # FILTER
+
+
 with filter_col2:
     location_options = ["All Locations"] + list(raw_df["location"].unique())
     selected_location = st.radio("📍 Filter by Location", options=location_options, horizontal=True)
@@ -181,7 +185,6 @@ if selected_location == "All Locations":
     df = raw_df
 else:
     df = raw_df[raw_df["location"] == selected_location]
-
 # --- 4. CALCULATE DYNAMIC METRICS ---
 if not df.empty:
     total_acc = df["total"].sum()
