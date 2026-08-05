@@ -107,6 +107,31 @@ def load_data():
     return pd.DataFrame(data)
 
 
+# try:
+#   DB_USER = st.secrets["DB_USER"]
+#   DB_PASSWORD = st.secrets["DB_PASSWORD"]
+#   DB_HOST = st.secrets["DB_HOST"]
+#   DB_PORT = st.secrets["DB_PORT"]
+#   DB_NAME = st.secrets["DB_NAME"]
+#
+#   engine = create_engine(
+#     f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+#   )
+#
+#   # Test query
+#   df = pd.read_sql("SELECT * FROM your_table LIMIT 10", engine)
+#   st.success("Connected to database successfully!")
+#   st.dataframe(df)
+# except Exception as e:
+#   st.warning(
+#     f"Could not connect to database yet (Check VPN/credentials): {e}"
+#   )
+#
+#   # Fallback dummy data so you can see the UI work right now
+#   data = {"Column A": [1, 2, 3, 4], "Column B": ["A", "B", "C", "D"]}
+#   st.write("Showing sample local data instead:")
+#   st.dataframe(pd.DataFrame(data))
+
 df = load_data()
 
 # --- CALCULATE SUMMARY METRICS ---
