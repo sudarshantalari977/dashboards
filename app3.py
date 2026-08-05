@@ -42,14 +42,20 @@ st.markdown(
         margin-bottom: -5px;
     }
 
-    /* --- BOLD BLACK BORDER & WARM/SOFT BLUE BACKGROUND FOR CONTAINERS --- */
-    [data-testid="stVerticalBlockBorderWrapper"] {
+    /* --- BULLETPROOF BLACK BORDER FOR CONTAINERS --- */
+    /* Target the main wrapper directly to overwrite Streamlit's default gray border */
+    div[data-testid="stVerticalBlockBorderWrapper"] {
         border: 2px solid black !important;
         border-radius: 6px !important;
-        background-color: #BBDEFB !important; /* Soft blue replacing peach */
+        background-color: #BBDEFB !important; /* Soft blue */
+        box-shadow: none !important; /* Force remove any default gray shadows */
+        overflow: hidden !important; 
     }
-    [data-testid="stVerticalBlockBorderWrapper"] > div {
-        border: none !important; 
+    /* Ensure absolutely no inner borders are drawn to prevent double lines */
+    div[data-testid="stVerticalBlockBorderWrapper"] > div {
+        border: none !important;
+        outline: none !important;
+        box-shadow: none !important;
     }
 
     /* --- METRIC CARDS --- */
@@ -58,7 +64,7 @@ st.markdown(
         border: 2px solid black !important;
         padding: 5px 10px;
         border-radius: 6px;
-        box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        box-shadow: none !important;
     }
     [data-testid="stMetricLabel"] { font-weight: 800 !important; font-size: 12px !important; color: #333 !important; }
     [data-testid="stMetricValue"] { font-weight: 800 !important; font-size: 22px !important; color: #1f3b73 !important; }
@@ -67,6 +73,7 @@ st.markdown(
     table {
         border: 2px solid black !important;
         background-color: #BBDEFB !important; /* Soft blue */
+        margin-bottom: 0px !important;
     }
     thead tr th {
         background-color: #0b3273 !important; 
@@ -83,7 +90,7 @@ st.markdown(
         padding: 4px !important; 
         border: 1px solid black !important;
         font-weight: 600 !important;
-        color: black !important; /* Forces all table data text to be black */
+        color: black !important; 
     }
 
     /* --- RADIO BUTTONS & INPUT CONTROLS --- */
@@ -152,7 +159,6 @@ def get_data(target_date):
         return df
 
     except Exception as e:
-        # Fallback sample data if DB isn't connected yet
         return pd.DataFrame({
             "location": ["PanjTarni", "Baltal", "Pantha Chowk", "Nunwan"],
             "total": [888, 8132, 13660, 19272],
@@ -201,7 +207,7 @@ with col4:
 mid_col1, mid_col2 = st.columns([2.5, 1])
 
 with mid_col1:
-    with st.container(border=True):
+    with st.container():
         if not df.empty:
             display_df = df.copy()
             display_df["occupancy_percentage"] = display_df["occupancy_percentage"].apply(lambda x: f"{x:.2f}%")
@@ -222,25 +228,31 @@ with mid_col1:
             st.warning("No data available for the selected filters.")
 
 with mid_col2:
-    with st.container(border=True):
-        st.markdown('<div class="blue-header">💡 Key Insights</div>', unsafe_allow_html=True)
-        if not df.empty:
-            highest_loc = df.loc[df["occupancy_percentage"].idxmax()]
-            lowest_loc = df.loc[df["occupancy_percentage"].idxmin()]
-            high_avg_loc = df.loc[df["daily_average_occupancy"].idxmax()]
+    if not df.empty:
+        highest_loc = df.loc[df["occupancy_percentage"].idxmax()]
+        lowest_loc = df.loc[df["occupancy_percentage"].idxmin()]
+        high_avg_loc = df.loc[df["daily_average_occupancy"].idxmax()]
 
-            st.markdown(
-                f"""
-                <div style="font-size: 13px; line-height: 1.5; padding-top: 5px; color: black;">
-                <b>📈 Highest:</b> {highest_loc['location']} ({highest_loc['occupancy_percentage']:.2f}%)<br><br>
-                <b>📉 Lowest:</b> {lowest_loc['location']} ({lowest_loc['occupancy_percentage']:.2f}%)<br><br>
-                <b>👥 High Avg:</b> {high_avg_loc['location']} ({high_avg_loc['daily_average_occupancy']})<br><br>
-                <b>🍩 Overall:</b> {overall_occupancy:.2f}%<br>
-                </div>
-                """, unsafe_allow_html=True
-            )
-        else:
-            st.write("Insufficient data.")
+        insights_html = f"""
+        <div style="border: 2px solid black; border-radius: 6px; background-color: #BBDEFB; height: 100%; box-sizing: border-box;">
+            <div style="background-color: #0b3273; color: white; text-align: center; font-weight: bold; padding: 4px; border-radius: 4px; font-size: 13px; text-transform: uppercase; margin: 4px;">
+                💡 Key Insights
+            </div>
+            <div style="font-size: 13.5px; color: black; padding: 10px 15px; line-height: 2.2;">
+                <b>📈 Highest:</b> {highest_loc['location']} ({highest_loc['occupancy_percentage']:.2f}%)<br>
+                <b>📉 Lowest:</b> {lowest_loc['location']} ({lowest_loc['occupancy_percentage']:.2f}%)<br>
+                <b>👥 High Avg:</b> {high_avg_loc['location']} ({high_avg_loc['daily_average_occupancy']})<br>
+                <b>🍩 Overall:</b> {overall_occupancy:.2f}%
+            </div>
+        </div>
+        """
+        st.markdown(insights_html, unsafe_allow_html=True)
+    else:
+        st.write("Insufficient data.")
+
+# --- DEDICATED SPACER ---
+# This adds 15px of vertical breathing room so the layout engine doesn't clip the chart borders
+st.markdown("<div style='height: 15px;'></div>", unsafe_allow_html=True)
 
 # --- 7. BOTTOM SECTION: PLOTLY CHARTS IN BOXES ---
 chart_col1, chart_col2 = st.columns(2)
@@ -256,8 +268,8 @@ def apply_bold_chart_styling(fig, xaxis_title):
                    tickfont=dict(size=11, color="black", weight="bold")),
         yaxis=dict(showline=True, linewidth=2, linecolor="black", mirror=True,
                    tickfont=dict(size=11, color="black", weight="bold")),
-        plot_bgcolor="#BBDEFB",  # Soft blue
-        paper_bgcolor="#BBDEFB",  # Soft blue
+        plot_bgcolor="#BBDEFB",
+        paper_bgcolor="#BBDEFB",
     )
     return fig
 
@@ -299,12 +311,9 @@ with chart_col2:
             st.plotly_chart(fig_avg, use_container_width=True, config={'displayModeBar': False})
 
 # --- 8. FOOTER BANNER ---
-with st.container(border=True):
-    st.markdown(
-        f"""
-        <div style="text-align: center; color: #1f3b73; font-weight: 700; font-size: 13px; padding: 4px; background-color: #BBDEFB; border-radius: 4px;">
-        ⭐ Overall occupancy stands at {overall_occupancy:.2f}% over {total_days} operational days with a total of {total_occ:,.0f} occupied out of {total_acc:,.0f} accommodation.
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
+footer_html = f"""
+<div style="border: 2px solid black; border-radius: 6px; background-color: #BBDEFB; padding: 6px; text-align: center; color: #1f3b73; font-weight: 700; font-size: 13px; margin-top: 10px;">
+    ⭐ Overall occupancy stands at {overall_occupancy:.2f}% over {total_days} operational days with a total of {total_occ:,.0f} occupied out of {total_acc:,.0f} accommodation.
+</div>
+"""
+st.markdown(footer_html, unsafe_allow_html=True)
