@@ -35,17 +35,16 @@ st.markdown(
         gap: 0.4rem !important;
     }
     .main-title {
-        font-size: 32px;
+        font-size: 22px !important;;
         font-weight: 800;
         color: #1f3b73;
         text-align: left;
-        margin-bottom: 5px;
+        margin-bottom: -5px;
     }
 
     /* --- BULLETPROOF BLACK BORDER FOR CONTAINERS --- */
     /* Target the main wrapper directly to overwrite Streamlit's default gray border */
     div[data-testid="stVerticalBlockBorderWrapper"] {
-        border: 1px solid black !important;
         border-radius: 6px !important;
         background-color: #BBDEFB !important; /* Soft blue */
         box-shadow: none !important; /* Force remove any default gray shadows */
@@ -61,8 +60,7 @@ st.markdown(
     /* --- METRIC CARDS --- */
     [data-testid="stMetric"] {
         background-color: #BBDEFB !important; /* Soft blue */
-        border: 1px solid black !important;
-        padding: 5px 10px;
+        padding: 2px 5px;
         border-radius: 6px;
         box-shadow: none !important;
     }
@@ -71,7 +69,6 @@ st.markdown(
 
     /* --- TABLE BORDERS & BACKGROUND --- */
     table {
-        border: 1px solid black !important;
         background-color: #BBDEFB !important; /* Soft blue */
         margin-bottom: 0px !important;
     }
@@ -81,14 +78,12 @@ st.markdown(
         text-align: center !important; 
         font-weight: bold !important;
         font-size: 10px !important; 
-        padding: 4px !important;
-        border: 1px solid black !important;
+        padding: 1px !important;
     }
     tbody tr td { 
         text-align: center !important; 
         font-size: 10px !important; 
-        padding: 4px !important; 
-        border: 1px solid black !important;
+        padding: 1px !important; 
         font-weight: 600 !important;
         color: black !important; 
     }
@@ -105,13 +100,12 @@ st.markdown(
         font-size: 12px !important;
     }
     div[role="radiogroup"] {
-        border: 2px solid black !important;
+        border: 1px solid black !important;
         padding: 4px 10px !important;
         border-radius: 6px !important;
         background-color: #BBDEFB !important; /* Soft blue */
     }
     [data-testid="stDateInput"] > div {
-        border: 2px solid black !important;
         border-radius: 6px !important;
         background-color: #BBDEFB !important; /* Soft blue */
     }
@@ -120,13 +114,18 @@ st.markdown(
     .blue-header {
         background-color: #0b3273; 
         color: white; 
-        text-align: center;
         font-weight: bold; 
-        padding: 4px; 
+        padding: 2px; 
         border-radius: 4px;
         font-size: 13px; 
         margin-bottom: 2px; 
         text-transform: uppercase;
+        display: flex;
+        align-items: center; 
+        justify-content: center;
+        min-height: 28px; 
+        padding: 4px 10px;
+        line-height: 1;
     }
     </style>
     """,
@@ -178,7 +177,7 @@ raw_df = get_data(selected_date)
 
 with filter_col2:
     location_options = ["All Locations"] + list(raw_df["location"].unique())
-    selected_location = st.radio("📍 Filter by Location", options=location_options, horizontal=True)
+    selected_location = st.selectbox("📍 Filter by Location", options=location_options)
 
 # Apply Filter
 if selected_location == "All Locations":
@@ -237,11 +236,11 @@ with mid_col2:
         high_avg_loc = df.loc[df["daily_average_occupancy"].idxmax()]
 
         insights_html = f"""
-        <div style="border: 2px solid black; border-radius: 6px; background-color: #BBDEFB; height: 100%; box-sizing: border-box;">
-            <div style="background-color: #0b3273; color: white; text-align: center; font-weight: bold; padding: 4px; border-radius: 4px; font-size: 13px; text-transform: uppercase; margin: 4px;">
+        <div style=" border-radius: 6px; background-color: #BBDEFB; height: 100%; box-sizing: border-box;">
+            <div style="background-color: #0b3273; color: white; text-align: center; font-weight: bold; padding: 1px; border-radius: 4px; font-size: 13px; text-transform: uppercase; overflow: hidden;">
                 💡 Key Insights
             </div>
-            <div style="font-size: 13.5px; color: black; padding: 10px 15px; line-height: 2.2;">
+            <div style="font-size: 13.5px; color: black; padding: 5px 15px; line-height: 2.2;">
                 <b>📈 Highest:</b> {highest_loc['location']} ({highest_loc['occupancy_percentage']:.2f}%)<br>
                 <b>📉 Lowest:</b> {lowest_loc['location']} ({lowest_loc['occupancy_percentage']:.2f}%)<br>
                 <b>👥 High Avg:</b> {high_avg_loc['location']} ({high_avg_loc['daily_average_occupancy']})<br>
@@ -252,20 +251,14 @@ with mid_col2:
         st.markdown(insights_html, unsafe_allow_html=True)
     else:
         st.write("Insufficient data.")
-
-# --- DEDICATED SPACER ---
-# This adds 15px of vertical breathing room so the layout engine doesn't clip the chart borders
-st.markdown("<div style='height: 15px;'></div>", unsafe_allow_html=True)
-
 # --- 7. BOTTOM SECTION: PLOTLY CHARTS IN BOXES ---
 chart_col1, chart_col2 = st.columns(2)
 
-
 def apply_bold_chart_styling(fig, xaxis_title):
     fig.update_layout(
-        height=220,
+        height=150,
         xaxis_title=xaxis_title, yaxis_title="", showlegend=False,
-        margin=dict(l=5, r=5, t=5, b=25),
+        margin=dict(l=1, r=1, t=1, b=1),
         font=dict(family="Arial", size=11, color="black"),
         xaxis=dict(showline=True, linewidth=2, linecolor="black", mirror=True,
                    tickfont=dict(size=11, color="black", weight="bold")),
@@ -278,7 +271,7 @@ def apply_bold_chart_styling(fig, xaxis_title):
 
 
 with chart_col1:
-    with st.container(border=True):
+    with st.container():
         st.markdown('<div class="blue-header">Occupancy % by Location</div>', unsafe_allow_html=True)
         if not df.empty:
             df_sorted_occ = df.sort_values(by="occupancy_percentage", ascending=True)
@@ -290,11 +283,11 @@ with chart_col1:
             fig_occ.update_traces(width=0.5, texttemplate="%{text:.2f}%", textposition="outside",
                                   textfont=dict(weight="bold", color="black"))
             fig_occ = apply_bold_chart_styling(fig_occ, "Occupancy %")
-            fig_occ.update_layout(xaxis=dict(range=[0, 110]))
+            fig_occ.update_layout(xaxis=dict(range=[0, 100]))
             st.plotly_chart(fig_occ, use_container_width=True, config={'displayModeBar': False})
 
 with chart_col2:
-    with st.container(border=True):
+    with st.container():
         st.markdown('<div class="blue-header">Cumulative Daily Avg. Occupancy</div>', unsafe_allow_html=True)
         if not df.empty:
             df_sorted_avg = df.sort_values(by="daily_average_occupancy", ascending=True)
@@ -315,7 +308,7 @@ with chart_col2:
 
 # --- 8. FOOTER BANNER ---
 footer_html = f"""
-<div style="border: 2px solid black; border-radius: 6px; background-color: #BBDEFB; padding: 6px; text-align: center; color: #1f3b73; font-weight: 700; font-size: 13px; margin-top: 10px;">
+<div style="border: 1px solid black; border-radius: 6px; background-color: #BBDEFB; padding: 2px; text-align: center; color: #1f3b73; font-weight: 700; font-size: 13px; margin-top: 1px;">
     ⭐ Overall occupancy stands at {overall_occupancy:.2f}% over {total_days} operational days with a total of {total_occ:,.0f} occupied out of {total_acc:,.0f} accommodation.
 </div>
 """
