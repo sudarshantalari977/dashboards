@@ -145,6 +145,12 @@ st.markdown(
         padding: 4px 10px;
         line-height: 1;
     }
+    [data-testid="stPlotlyChart"],
+    [data-testid="stPlotlyChart"] iframe {
+        border-bottom-left-radius: 8px !important;
+        border-bottom-right-radius: 8px !important;
+        overflow: hidden !important;
+    }
     </style>
     """,
     unsafe_allow_html=True,
