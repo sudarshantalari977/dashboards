@@ -15,8 +15,6 @@ st.markdown(
     """
     <style>
     /* --- GLOBAL BACKGROUND COLOR --- */
-/* --- GLOBAL BACKGROUND (WHITE CENTER GLOW) --- */
-/* --- GLOBAL BACKGROUND (WHITE WITH ICE-BLUE GRID) --- */
 /* --- GLOBAL BACKGROUND (WASHED WHITE DIAGONAL) --- */
     .stApp {
         background-color: #FFFFFF !important;
@@ -45,7 +43,7 @@ st.markdown(
         gap: 0.4rem !important;
     }
     .main-title {
-        font-size: 22px !important;;
+        font-size: 26px !important;;
         font-weight: 800;
         color: #1f3b73;
         text-align: left;
@@ -99,25 +97,35 @@ st.markdown(
     }
 
     /* --- RADIO BUTTONS & INPUT CONTROLS --- */
+/* --- INPUT CONTROLS (DATE PICKER & DROPDOWN) --- */
+    
+    /* 1. Style the Labels ("📅 Reporting Date", etc.) */
     [data-testid="stWidgetLabel"] p {
         font-weight: 800 !important;
         color: #0b3273 !important;
         font-size: 13px !important;
     }
-    [data-testid="stRadio"] label p {
-        font-weight: 800 !important;
+
+    /* 2. Style the outer boxes of BOTH the Date Picker and the Dropdown */
+    [data-testid="stDateInput"] > div, 
+    [data-testid="stSelectbox"] > div > div {
+        background-color: #BBDEFB !important; /* Soft blue background */
+        border: 1.5px solid #0b3273 !important; /* Crisp dark blue border */
+        border-radius: 6px !important;
+        box-shadow: none !important;
+    }
+
+    /* 3. Make the selected text inside the inputs bold and dark blue */
+    [data-testid="stDateInput"] input,
+    [data-testid="stSelectbox"] p {
+        font-weight: 700 !important;
         color: #1f3b73 !important;
-        font-size: 12px !important;
+        font-size: 13px !important;
     }
-    div[role="radiogroup"] {
-        border: 1px solid black !important;
-        padding: 4px 10px !important;
-        border-radius: 6px !important;
-        background-color: #BBDEFB !important; /* Soft blue */
-    }
-    [data-testid="stDateInput"] > div {
-        border-radius: 6px !important;
-        background-color: #BBDEFB !important; /* Soft blue */
+    
+    /* 4. Style the dropdown arrow icon */
+    [data-testid="stSelectbox"] svg {
+        color: #0b3273 !important;
     }
 
     /* --- BLUE CHART HEADERS --- */
