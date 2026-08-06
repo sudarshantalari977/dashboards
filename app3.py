@@ -15,8 +15,18 @@ st.markdown(
     """
     <style>
     /* --- GLOBAL BACKGROUND COLOR --- */
+/* --- GLOBAL BACKGROUND (WHITE CENTER GLOW) --- */
+/* --- GLOBAL BACKGROUND (WHITE WITH ICE-BLUE GRID) --- */
+/* --- GLOBAL BACKGROUND (WASHED WHITE DIAGONAL) --- */
     .stApp {
-        background-color: #FFFFFF !important; /* Pale blue background */
+        background-color: #FFFFFF !important;
+        background-image: repeating-linear-gradient(
+            -45deg,
+            transparent,
+            transparent 20px,
+            rgba(167, 199, 231, 0.15) 20px,
+            rgba(167, 199, 231, 0.15) 40px
+        ) !important;
     }
 
     /* Make the top padding area transparent so it blends */

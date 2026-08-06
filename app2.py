@@ -14,6 +14,26 @@ st.set_page_config(
 st.markdown(
     """
     <style>
+    /* --- GLOBAL BACKGROUND COLOR --- */
+/* --- GLOBAL BACKGROUND (OPERATIONAL DOT GRID) --- */
+/* --- GLOBAL BACKGROUND (SUBTLE DIAGONAL LINES) --- */
+    .stApp {
+        background-color: #A7C7E7 !important;
+        background-image: repeating-linear-gradient(
+            -45deg,
+            transparent,
+            transparent 10px,
+            rgba(255, 255, 255, 0.2) 10px,
+            rgba(255, 255, 255, 0.2) 11px
+        ) !important;
+    }
+
+    /* Make the top padding area transparent so it blends */
+    [data-testid="stHeader"] {
+        background-color: transparent !important;
+    }
+
+    /* Compact spacing to fit on a single screen */
     .block-container {
         padding-top: 1rem !important;
         padding-bottom: 0rem !important;
@@ -24,59 +44,118 @@ st.markdown(
         gap: 0.4rem !important;
     }
     .main-title {
-        font-size: 24px;
+        font-size: 22px !important;;
         font-weight: 800;
         color: #1f3b73;
-        text-align: center;
+        text-align: left;
         margin-bottom: -5px;
     }
-    .sub-title {
-        font-size: 13px;
-        font-weight: 600;
-        color: #555;
-        text-align: center;
-        margin-bottom: 5px;
+
+    /* --- BULLETPROOF BLACK BORDER FOR CONTAINERS --- */
+    /* Target the main wrapper directly to overwrite Streamlit's default gray border */
+    div[data-testid="stVerticalBlockBorderWrapper"] {
+        border-radius: 6px !important;
+        background-color: #BBDEFB !important; /* Soft blue */
+        box-shadow: none !important; /* Force remove any default gray shadows */
+        overflow: hidden !important; 
     }
+    /* Ensure absolutely no inner borders are drawn to prevent double lines */
+    div[data-testid="stVerticalBlockBorderWrapper"] > div {
+        border: none !important;
+        outline: none !important;
+        box-shadow: none !important;
+    }
+
+    /* --- METRIC CARDS --- */
     [data-testid="stMetric"] {
-        background-color: #ffffff;
-        border: 1px solid #e0e0e0;
-        padding: 5px 10px;
+        background-color: #BBDEFB !important; /* Soft blue */
+        padding: 2px 5px;
         border-radius: 6px;
-        box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        box-shadow: none !important;
     }
     [data-testid="stMetricLabel"] { font-weight: 800 !important; font-size: 12px !important; color: #333 !important; }
     [data-testid="stMetricValue"] { font-weight: 800 !important; font-size: 22px !important; color: #1f3b73 !important; }
-    thead tr th {
-        background-color: #0b3273 !important; color: white !important;
-        text-align: center !important; font-weight: bold !important;
-        font-size: 12px !important; padding: 4px !important;
+
+    /* --- TABLE BORDERS & BACKGROUND --- */
+    table {
+        background-color: #BBDEFB !important; /* Soft blue */
+        margin-bottom: 0px !important;
     }
-    tbody tr td { text-align: center !important; font-size: 12px !important; padding: 4px !important; }
+    thead tr th {
+        background-color: #0b3273 !important; 
+        color: white !important;
+        text-align: center !important; 
+        font-weight: bold !important;
+        font-size: 10px !important; 
+        padding: 1px !important;
+    }
+    tbody tr td { 
+        text-align: center !important; 
+        font-size: 10px !important; 
+        padding: 1px !important; 
+        font-weight: 600 !important;
+        color: black !important; 
+    }
+
+    /* --- RADIO BUTTONS & INPUT CONTROLS --- */
+    [data-testid="stWidgetLabel"] p {
+        font-weight: 800 !important;
+        color: #0b3273 !important;
+        font-size: 13px !important;
+    }
+    [data-testid="stRadio"] label p {
+        font-weight: 800 !important;
+        color: #1f3b73 !important;
+        font-size: 12px !important;
+    }
+    div[role="radiogroup"] {
+        border: 1px solid black !important;
+        padding: 4px 10px !important;
+        border-radius: 6px !important;
+        background-color: #BBDEFB !important; /* Soft blue */
+    }
+    [data-testid="stDateInput"] > div {
+        border-radius: 6px !important;
+        background-color: #BBDEFB !important; /* Soft blue */
+    }
+
+    /* --- BLUE CHART HEADERS --- */
     .blue-header {
-        background-color: #0b3273; color: white; text-align: center;
-        font-weight: bold; padding: 4px; border-radius: 4px;
-        font-size: 13px; margin-bottom: 2px; text-transform: uppercase;
+        background-color: #0b3273; 
+        color: white; 
+        font-weight: bold; 
+        padding: 2px; 
+        border-radius: 4px;
+        font-size: 13px; 
+        margin-bottom: 2px; 
+        text-transform: uppercase;
+        display: flex;
+        align-items: center; 
+        justify-content: center;
+        min-height: 28px; 
+        padding: 4px 10px;
+        line-height: 1;
     }
     </style>
     """,
     unsafe_allow_html=True,
 )
+left_half, right_half = st.columns(2)
 
-# --- 2. HEADER & FILTERS ---
-st.markdown('<p class="main-title">Cumulative Daily Avg. Occupancy Dashboard</p>', unsafe_allow_html=True)
+with left_half:
+        # --- 2. HEADER & FILTERS ---
+    st.markdown('<p class="main-title">Cumulative Daily Avg. Occupancy Dashboard</p>', unsafe_allow_html=True)
 
-# Create a clean row for the interactive filters
-filter_col1, filter_col2 = st.columns([1, 3])
-with filter_col1:
-    selected_date = st.date_input("📅 Reporting Date", datetime.date.today())
-
+with right_half:
+    filter_col1, filter_col2 = st.columns([1, 3])
+    with filter_col1:
+        selected_date = st.date_input("📅 Reporting Date", datetime.date.today())
 
 # --- 3. LIVE DATA CONNECTION (60-Second Refresh) ---
 @st.cache_data(ttl=60)
 def get_data(target_date):
     """Fetches data from AWS RDS. Caches it for 60 seconds to prevent DB overload."""
     try:
-        # Tries to connect using Streamlit secrets
         DB_USER = st.secrets["DB_USER"]
         DB_PASSWORD = st.secrets["DB_PASSWORD"]
         DB_HOST = st.secrets["DB_HOST"]
@@ -85,14 +164,11 @@ def get_data(target_date):
 
         engine = create_engine(f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}")
 
-        # Modify this query to match your actual database function/table structure
-        # Example using the date filter: f"SELECT * FROM your_table WHERE report_date = '{target_date}'"
         query = "SELECT location, total, occupied, occupancy_percentage, daily_average_occupancy, operating_days FROM your_table"
         df = pd.read_sql(query, engine)
         return df
 
     except Exception as e:
-        # Fallback to mock data if DB isn't connected yet
         return pd.DataFrame({
             "location": ["PanjTarni", "Baltal", "Pantha Chowk", "Nunwan"],
             "total": [888, 8132, 13660, 19272],
@@ -103,22 +179,21 @@ def get_data(target_date):
         })
 
 
-# Load the data
 raw_df = get_data(selected_date)
 
-# Complete the filter section by dynamically generating location options based on the DB data
+# FILTER
+
+
 with filter_col2:
     location_options = ["All Locations"] + list(raw_df["location"].unique())
-    selected_location = st.radio("📍 Filter by Location", options=location_options, horizontal=True)
+    selected_location = st.selectbox("📍 Filter by Location", options=location_options)
 
-# Apply the filter
+# Apply Filter
 if selected_location == "All Locations":
     df = raw_df
 else:
     df = raw_df[raw_df["location"] == selected_location]
-
 # --- 4. CALCULATE DYNAMIC METRICS ---
-# If data is empty after filtering, default to 0 to prevent errors
 if not df.empty:
     total_acc = df["total"].sum()
     total_occ = df["occupied"].sum()
@@ -143,7 +218,7 @@ with col4:
 mid_col1, mid_col2 = st.columns([2.5, 1])
 
 with mid_col1:
-    with st.container(border=True):
+    with st.container():
         if not df.empty:
             display_df = df.copy()
             display_df["occupancy_percentage"] = display_df["occupancy_percentage"].apply(lambda x: f"{x:.2f}%")
@@ -164,47 +239,48 @@ with mid_col1:
             st.warning("No data available for the selected filters.")
 
 with mid_col2:
-    with st.container(border=True):
-        st.markdown('<div class="blue-header">💡 Key Insights</div>', unsafe_allow_html=True)
-        if not df.empty:
-            highest_loc = df.loc[df["occupancy_percentage"].idxmax()]
-            lowest_loc = df.loc[df["occupancy_percentage"].idxmin()]
-            high_avg_loc = df.loc[df["daily_average_occupancy"].idxmax()]
+    if not df.empty:
+        highest_loc = df.loc[df["occupancy_percentage"].idxmax()]
+        lowest_loc = df.loc[df["occupancy_percentage"].idxmin()]
+        high_avg_loc = df.loc[df["daily_average_occupancy"].idxmax()]
 
-            st.markdown(
-                f"""
-                <div style="font-size: 13px; line-height: 1.5; padding-top: 5px;">
-                <b>📈 Highest:</b> {highest_loc['location']} ({highest_loc['occupancy_percentage']:.2f}%)<br><br>
-                <b>📉 Lowest:</b> {lowest_loc['location']} ({lowest_loc['occupancy_percentage']:.2f}%)<br><br>
-                <b>👥 High Avg:</b> {high_avg_loc['location']} ({high_avg_loc['daily_average_occupancy']})<br><br>
-                <b>🍩 Overall:</b> {overall_occupancy:.2f}%<br>
-                </div>
-                """, unsafe_allow_html=True
-            )
-        else:
-            st.write("Insufficient data.")
-
+        insights_html = f"""
+        <div style=" border-radius: 6px; background-color: #BBDEFB; height: 100%; box-sizing: border-box;">
+            <div style="background-color: #0b3273; color: white; text-align: center; font-weight: bold; padding: 1px; border-radius: 4px; font-size: 13px; text-transform: uppercase; overflow: hidden;">
+                💡 Key Insights
+            </div>
+            <div style="font-size: 13.5px; color: black; padding: 5px 15px; line-height: 2.2;">
+                <b>📈 Highest:</b> {highest_loc['location']} ({highest_loc['occupancy_percentage']:.2f}%)<br>
+                <b>📉 Lowest:</b> {lowest_loc['location']} ({lowest_loc['occupancy_percentage']:.2f}%)<br>
+                <b>👥 High Avg:</b> {high_avg_loc['location']} ({high_avg_loc['daily_average_occupancy']})<br>
+                <b>🍩 Overall:</b> {overall_occupancy:.2f}%
+            </div>
+        </div>
+        """
+        st.markdown(insights_html, unsafe_allow_html=True)
+    else:
+        st.write("Insufficient data.")
 # --- 7. BOTTOM SECTION: PLOTLY CHARTS IN BOXES ---
 chart_col1, chart_col2 = st.columns(2)
 
-
 def apply_bold_chart_styling(fig, xaxis_title):
     fig.update_layout(
-        height=220,
+        height=150,
         xaxis_title=xaxis_title, yaxis_title="", showlegend=False,
-        margin=dict(l=5, r=5, t=5, b=25),
+        margin=dict(l=1, r=1, t=1, b=1),
         font=dict(family="Arial", size=11, color="black"),
-        xaxis=dict(showline=True, linewidth=1.5, linecolor="black", mirror=True,
+        xaxis=dict(showline=True, linewidth=2, linecolor="black", mirror=True,
                    tickfont=dict(size=11, color="black", weight="bold")),
-        yaxis=dict(showline=True, linewidth=1.5, linecolor="black", mirror=True,
+        yaxis=dict(showline=True, linewidth=2, linecolor="black", mirror=True,
                    tickfont=dict(size=11, color="black", weight="bold")),
-        plot_bgcolor="white", paper_bgcolor="white",
+        plot_bgcolor="#BBDEFB",
+        paper_bgcolor="#BBDEFB",
     )
     return fig
 
 
 with chart_col1:
-    with st.container(border=True):
+    with st.container():
         st.markdown('<div class="blue-header">Occupancy % by Location</div>', unsafe_allow_html=True)
         if not df.empty:
             df_sorted_occ = df.sort_values(by="occupancy_percentage", ascending=True)
@@ -216,11 +292,11 @@ with chart_col1:
             fig_occ.update_traces(width=0.5, texttemplate="%{text:.2f}%", textposition="outside",
                                   textfont=dict(weight="bold", color="black"))
             fig_occ = apply_bold_chart_styling(fig_occ, "Occupancy %")
-            fig_occ.update_layout(xaxis=dict(range=[0, 110]))
+            fig_occ.update_layout(xaxis=dict(range=[0, 100]))
             st.plotly_chart(fig_occ, use_container_width=True, config={'displayModeBar': False})
 
 with chart_col2:
-    with st.container(border=True):
+    with st.container():
         st.markdown('<div class="blue-header">Cumulative Daily Avg. Occupancy</div>', unsafe_allow_html=True)
         if not df.empty:
             df_sorted_avg = df.sort_values(by="daily_average_occupancy", ascending=True)
@@ -232,7 +308,6 @@ with chart_col2:
             fig_avg.update_traces(width=0.5, texttemplate="%{text}", textposition="outside",
                                   textfont=dict(weight="bold", color="black"))
 
-            # Dynamically set the x-axis range based on max value to ensure text fits
             max_val = df_sorted_avg["daily_average_occupancy"].max()
             x_range = max_val + (max_val * 0.2) if max_val > 0 else 700
 
@@ -241,12 +316,9 @@ with chart_col2:
             st.plotly_chart(fig_avg, use_container_width=True, config={'displayModeBar': False})
 
 # --- 8. FOOTER BANNER ---
-with st.container(border=True):
-    st.markdown(
-        f"""
-        <div style="text-align: center; color: #1f3b73; font-weight: 600; font-size: 13px; padding: 4px; background-color: #f4f8ff; border-radius: 4px;">
-        ⭐ Overall occupancy stands at {overall_occupancy:.2f}% over {total_days} operational days with a total of {total_occ:,.0f} occupied out of {total_acc:,.0f} accommodation.
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
+footer_html = f"""
+<div style="border: 1px solid black; border-radius: 6px; background-color: #BBDEFB; padding: 2px; text-align: center; color: #1f3b73; font-weight: 700; font-size: 13px; margin-top: 1px;">
+    ⭐ Overall occupancy stands at {overall_occupancy:.2f}% over {total_days} operational days with a total of {total_occ:,.0f} occupied out of {total_acc:,.0f} accommodation.
+</div>
+"""
+st.markdown(footer_html, unsafe_allow_html=True)
